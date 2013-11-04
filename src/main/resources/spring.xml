@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+						 http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+						 http://www.springframework.org/schema/context
+						 http://www.springframework.org/schema/context/spring-context-3.2.xsd
+						http://www.springframework.org/schema/aop
+						 http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+           				http://www.springframework.org/schema/tx
+           				 http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+    <!-- 开启spring的annotation配置方式 -->
+    <context:annotation-config/>
+    <aop:aspectj-autoproxy/>
+    <tx:annotation-driven transaction-manager="txManager"/>
+
+    <!-- 自动扫描service -->
+    <!-- 在这里要和controller的扫描分开配置 -->
+    <context:component-scan base-package="com.ghtn.service"/>
+
+    <!-- 在所有manager的实现类上加日志 -->
+    <bean id="logUtil" class="com.ghtn.util.LogUtil"/>
+    <aop:config>
+        <aop:pointcut expression="execution(* com.ghtn.service.impl.*.*(..))"
+                      id="logPointcut"/>
+        <aop:aspect id="logUtilAspect" ref="logUtil">
+            <aop:before method="before" pointcut-ref="logPointcut"/>
+            <aop:after-returning method="afterReturn" pointcut-ref="logPointcut"/>
+        </aop:aspect>
+    </aop:config>
+
+    <!-- 在所有manager实现类的方法上加运行时间 -->
+    <bean id="methodEfficiencyUtil" class="com.ghtn.util.MethodEfficiencyUtil"/>
+    <aop:config>
+        <aop:pointcut expression="execution(* com.ghtn.service.impl.*.*(..))"
+                      id="methodEfficiencyPointcut"/>
+        <aop:aspect id="methodEfficiencyUtilAspect" ref="methodEfficiencyUtil">
+            <aop:around method="around" pointcut-ref="methodEfficiencyPointcut"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans>
