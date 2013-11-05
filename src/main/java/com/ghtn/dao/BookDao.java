@@ -9,5 +9,5 @@ import com.ghtn.model.Book;
  * Time: 下午3:46
  * To change this template use File | Settings | File Templates.
  */
-public interface BookDao extends GenericDao<Book, Long>{
+public interface BookDao extends GenericDao<Book, Long> {
 }

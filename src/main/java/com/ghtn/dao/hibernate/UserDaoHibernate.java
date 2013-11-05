@@ -2,12 +2,7 @@ package com.ghtn.dao.hibernate;
 
 import com.ghtn.dao.UserDao;
 import com.ghtn.model.User;
-import org.hibernate.envers.AuditReader;
-import org.hibernate.envers.AuditReaderFactory;
 import org.springframework.stereotype.Repository;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.

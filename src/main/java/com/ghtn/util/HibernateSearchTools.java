@@ -3,7 +3,6 @@ package com.ghtn.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
@@ -65,7 +64,7 @@ public class HibernateSearchTools {
                 reader = readerAccessor.open(searchedEntity);
                 Collection<String> fields = ReaderUtil.getIndexedFields(reader);
                 fields.remove("_hibernate_class");
-                String[] fnames =  new String[fields.size()];
+                String[] fnames = new String[fields.size()];
                 fields.toArray(fnames);
 
                 // To search on all fields, search the term in all fields

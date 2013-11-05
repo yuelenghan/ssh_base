@@ -3,12 +3,11 @@ package com.ghtn.dao;
 import org.hibernate.search.SearchException;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 
-public interface GenericDao <T, PK extends Serializable> {
+public interface GenericDao<T, PK extends Serializable> {
 
     List<T> getAll();
 

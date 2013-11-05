@@ -9,10 +9,10 @@ import org.hibernate.envers.RevisionListener;
  * Time: 上午10:31
  * To change this template use File | Settings | File Templates.
  */
-public class SimpleListener implements RevisionListener{
+public class SimpleListener implements RevisionListener {
     @Override
     public void newRevision(Object o) {
-        SimpleRevEntity revEntity = (SimpleRevEntity)o;
+        SimpleRevEntity revEntity = (SimpleRevEntity) o;
 
         revEntity.setEditor("我编辑的");
     }

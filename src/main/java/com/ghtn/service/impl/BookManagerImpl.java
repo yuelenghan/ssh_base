@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * To change this template use File | Settings | File Templates.
  */
 @Service("bookManager")
-public class BookManagerImpl extends GenericManagerImpl<Book, Long> implements BookManager{
+public class BookManagerImpl extends GenericManagerImpl<Book, Long> implements BookManager {
 
     private BookDao bookDao;
 

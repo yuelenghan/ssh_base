@@ -9,8 +9,6 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.util.Version;
 import org.hibernate.*;
-import org.hibernate.envers.AuditReader;
-import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchException;
@@ -176,6 +174,5 @@ public class GenericDaoHibernate<T, PK extends Serializable> implements GenericD
         Session sess = getSession();
         return sess.createQuery(hql).list();
     }
-
 
 }

@@ -12,8 +12,8 @@ import org.springframework.stereotype.Repository;
  * To change this template use File | Settings | File Templates.
  */
 @Repository("bookDao")
-public class BookDaoHibernate extends GenericDaoHibernate<Book, Long> implements BookDao{
-    public BookDaoHibernate () {
+public class BookDaoHibernate extends GenericDaoHibernate<Book, Long> implements BookDao {
+    public BookDaoHibernate() {
         super(Book.class);
     }
 }
