@@ -9,6 +9,8 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.util.Version;
 import org.hibernate.*;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchException;
@@ -22,6 +24,7 @@ import java.util.*;
 
 /**
  * 实现通用的增删改查
+ *
  * @param <T>
  * @param <PK>
  */
@@ -77,6 +80,7 @@ public class GenericDaoHibernate<T, PK extends Serializable> implements GenericD
 
     /**
      * 全文搜索
+     *
      * @param searchTerm
      * @return
      * @throws SearchException
@@ -159,7 +163,8 @@ public class GenericDaoHibernate<T, PK extends Serializable> implements GenericD
 
     /**
      * 对所有实体重新建立索引
-     * @param async  true 异步 ； false 同步
+     *
+     * @param async true 异步 ； false 同步
      */
     public void reindexAll(boolean async) {
         HibernateSearchTools.reindexAll(async, getSessionFactory().getCurrentSession());
@@ -171,4 +176,6 @@ public class GenericDaoHibernate<T, PK extends Serializable> implements GenericD
         Session sess = getSession();
         return sess.createQuery(hql).list();
     }
+
+
 }

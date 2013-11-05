@@ -9,5 +9,6 @@ import com.ghtn.model.User;
  * Time: 上午10:10
  * To change this template use File | Settings | File Templates.
  */
-public interface UserDao extends GenericDao<User, Long>{
+public interface UserDao extends AuditGenericDao<User, Long> {
+
 }

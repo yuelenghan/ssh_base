@@ -27,8 +27,18 @@ public class BookManagerTest extends BaseTestCase{
     @Test
     public void testSave() {
         Book book = new Book();
-        book.setName("testName2");
-        book.setContent("cotent2");
+        book.setName("book2");
+        book.setContent("content2");
+
+        bookManager.save(book);
+    }
+
+    @Test
+    public void testUpdate() {
+        Book book = new Book();
+        book.setId(1L);
+        book.setName("第一本书");
+        book.setContent("content1");
 
         bookManager.save(book);
     }

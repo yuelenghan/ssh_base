@@ -1,6 +1,7 @@
 package com.ghtn.model;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.*;
 import org.hibernate.validator.constraints.Length;
 
@@ -18,6 +19,7 @@ import java.io.Serializable;
  */
 @Entity
 @Indexed
+@Audited
 public class User implements Serializable {
     private Long id;
     private String name;

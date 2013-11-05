@@ -23,8 +23,23 @@ public class UserManagerTest extends BaseTestCase{
     @Test
     public void testSave() {
         User user = new User();
-        user.setName("test2");
+        user.setName("test");
         user.setAge(20);
+
+        userManager.save(user);
+    }
+
+    @Test
+    public void testRemove() {
+        userManager.remove(3L);
+    }
+
+    @Test
+    public void testUpdate() {
+        User user = new User();
+        user.setId(1L);
+        user.setName("死神");
+        user.setAge(30);
 
         userManager.save(user);
     }

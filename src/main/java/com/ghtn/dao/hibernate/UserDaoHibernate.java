@@ -2,7 +2,12 @@ package com.ghtn.dao.hibernate;
 
 import com.ghtn.dao.UserDao;
 import com.ghtn.model.User;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.springframework.stereotype.Repository;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,8 +17,10 @@ import org.springframework.stereotype.Repository;
  * To change this template use File | Settings | File Templates.
  */
 @Repository("userDao")
-public class UserDaoHibernate extends GenericDaoHibernate<User, Long> implements UserDao {
+public class UserDaoHibernate extends AuditGenerciDaoHibernate<User, Long> implements UserDao {
+
     public UserDaoHibernate() {
         super(User.class);
     }
+
 }
