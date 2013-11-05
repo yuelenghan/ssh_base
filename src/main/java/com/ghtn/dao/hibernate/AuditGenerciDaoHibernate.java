@@ -40,7 +40,6 @@ public class AuditGenerciDaoHibernate<T, PK extends Serializable> extends Generi
         return getAuditReader().getRevisions(persistentClass, pk);
     }
 
-
     @Override
     public Date getRevisionDate(Number version) {
         return getAuditReader().getRevisionDate(version);
