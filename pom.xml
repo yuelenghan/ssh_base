@@ -335,6 +335,18 @@
         <hibernate.search.default.indexBase>d:/index</hibernate.search.default.indexBase>
         <hibernate.search.indexing_strategy>event</hibernate.search.indexing_strategy>
 
+        <!-- 二级缓存配置 -->
+        <diskStorePath>java.io.tmpdir</diskStorePath>
+        <maxElementsInMemory>10000</maxElementsInMemory>
+        <overflowToDisk>true</overflowToDisk>
+        <eternal>false</eternal>
+        <memoryStoreEvictionPolicy>LRU</memoryStoreEvictionPolicy>
+        <maxElementsOnDisk>10000000</maxElementsOnDisk>
+        <diskExpiryThreadIntervalSeconds>600</diskExpiryThreadIntervalSeconds>
+        <timeToIdleSeconds>3600</timeToIdleSeconds>
+        <timeToLiveSeconds>100000</timeToLiveSeconds>
+        <diskPersistent>false</diskPersistent>
+
         <encoding>utf-8</encoding>
     </properties>
 </project>
