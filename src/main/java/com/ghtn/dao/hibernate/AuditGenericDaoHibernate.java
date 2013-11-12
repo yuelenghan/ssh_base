@@ -15,7 +15,7 @@ import java.util.List;
  * Time: 下午5:26
  * To change this template use File | Settings | File Templates.
  */
-public class AuditGenerciDaoHibernate<T, PK extends Serializable> extends GenericDaoHibernate
+public class AuditGenericDaoHibernate<T, PK extends Serializable> extends GenericDaoHibernate
         implements AuditGenericDao<T, PK> {
 
     private Class<T> persistentClass;
@@ -24,7 +24,7 @@ public class AuditGenerciDaoHibernate<T, PK extends Serializable> extends Generi
         return AuditReaderFactory.get(getSession());
     }
 
-    public AuditGenerciDaoHibernate(final Class<T> persistentClass) {
+    public AuditGenericDaoHibernate(final Class<T> persistentClass) {
         super(persistentClass);
         this.persistentClass = persistentClass;
     }

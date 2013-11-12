@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * To change this template use File | Settings | File Templates.
  */
 @Repository("userDao")
-public class UserDaoHibernate extends AuditGenerciDaoHibernate<User, Long> implements UserDao {
+public class UserDaoHibernate extends AuditGenericDaoHibernate<User, Long> implements UserDao {
 
     public UserDaoHibernate() {
         super(User.class);
