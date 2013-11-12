@@ -9,5 +9,5 @@ import com.ghtn.model.User;
  * Time: 上午10:12
  * To change this template use File | Settings | File Templates.
  */
-public interface UserManager extends GenericManager<User, Long> {
+public interface UserManager extends AuditGenericManager<User, Long> {
 }

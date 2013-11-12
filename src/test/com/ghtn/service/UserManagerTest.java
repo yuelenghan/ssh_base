@@ -15,7 +15,7 @@ import javax.annotation.Resource;
  * To change this template use File | Settings | File Templates.
  */
 @Component
-public class UserManagerTest extends BaseTestCase{
+public class UserManagerTest extends BaseTestCase {
 
     @Resource
     private UserManager userManager;
@@ -42,5 +42,11 @@ public class UserManagerTest extends BaseTestCase{
         user.setAge(30);
 
         userManager.save(user);
+    }
+
+    @Test
+    public void testGetOld() {
+        User user = userManager.getOld(1L, 2);
+        logger.debug("用户名 = " + user.getName());
     }
 }

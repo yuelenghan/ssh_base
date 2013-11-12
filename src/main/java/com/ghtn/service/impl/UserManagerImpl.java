@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * To change this template use File | Settings | File Templates.
  */
 @Service("userManager")
-public class UserManagerImpl extends GenericManagerImpl<User, Long> implements UserManager {
+public class UserManagerImpl extends AuditGenericManagerImpl<User, Long> implements UserManager {
 
     private UserDao userDao;
 
