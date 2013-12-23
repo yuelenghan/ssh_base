@@ -6,7 +6,7 @@
     <artifactId>ssh_base</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>ssh_base</name>
+    <name>ssh_base Maven Webapp</name>
     <url>http://maven.apache.org</url>
 
     <prerequisites>
@@ -117,11 +117,6 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>4.3.1.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-envers</artifactId>
-            <version>4.2.7.Final</version>
         </dependency>
 
 
@@ -398,9 +393,6 @@
         <timeToIdleSeconds>3600</timeToIdleSeconds>
         <timeToLiveSeconds>100000</timeToLiveSeconds>
         <diskPersistent>false</diskPersistent>
-
-        <upload.temp.path>../webapps/${project.name}/temp</upload.temp.path>
-        <image.root.path>../webapps/images</image.root.path>
 
         <encoding>utf-8</encoding>
     </properties>
