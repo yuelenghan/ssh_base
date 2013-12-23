@@ -1,5 +1,7 @@
 package com.ghtn.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -18,14 +20,24 @@ import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * created by lh
- * 文件操作相关
+ * 文件操作工具类
  */
 public class FileUtil {
 
+    private static Log log = LogFactory.getLog(FileUtil.class);
+
+    /**
+     * 得到文件扩展名
+     *
+     * @param fileName 文件全名
+     * @return 文件扩展名
+     */
     public static String getFileExtension(String fileName) {
         if (!StringUtil.isNullStr(fileName)) {
             fileName = fileName.trim();
@@ -38,8 +50,8 @@ public class FileUtil {
     /**
      * 得到文件内容
      *
-     * @param path
-     * @return
+     * @param path 文件全路径
+     * @return 文件内容
      */
     public static String getFileContent(String path) {
         try {
@@ -54,7 +66,7 @@ public class FileUtil {
             }
             BufferedReader reader = new BufferedReader(new InputStreamReader(
                     new FileInputStream(path)));
-            String line = new String();
+            String line;
             StringBuffer temp = new StringBuffer();
 
             while ((line = reader.readLine()) != null) {
@@ -76,9 +88,9 @@ public class FileUtil {
     /**
      * 读取03版word文件的内容
      *
-     * @param fileName
-     * @return
-     * @throws Exception
+     * @param fileName 文件全路径
+     * @return 文件内容
+     * @throws Exception 抛出产生的所有异常信息
      */
     public static String Word_03_Reader(String fileName) throws Exception {
         StringBuffer temp = new StringBuffer();
@@ -100,9 +112,9 @@ public class FileUtil {
     /**
      * 读取07版word文件的内容
      *
-     * @param fileName
-     * @return
-     * @throws Exception
+     * @param fileName 文件全路径
+     * @return 文件内容
+     * @throws Exception 抛出产生的所有异常信息
      */
     public static String Word_07_Reader(String fileName) throws Exception {
         OPCPackage opcPackage = POIXMLDocument.openPackage(fileName);
@@ -116,8 +128,8 @@ public class FileUtil {
      *
      * @param fileName 文件全名
      * @param fileType 文件类型，2003或2007
-     * @return
-     * @throws Exception
+     * @return 文件内容
+     * @throws Exception 抛出产生的所有异常信息
      */
     public static String ExcelReader(String fileName, String fileType) throws Exception {
         StringBuffer temp = new StringBuffer();
@@ -166,9 +178,9 @@ public class FileUtil {
      * @return list封装之后的内容
      * @throws Exception
      */
-    public static List<Map<Integer, String>> ExcelReader(String fileName, String fileType, int startLine) throws Exception {
+    public static List<Object[]> ExcelReader(String fileName, String fileType, int startLine) throws Exception {
         if (exists(fileName) && !StringUtil.isNullStr(fileType)) {
-            List<Map<Integer, String>> list = new ArrayList<>();
+            List<Object[]> list = new ArrayList<>();
 
             FileInputStream fis = new FileInputStream(fileName);
             Workbook wb;
@@ -203,12 +215,12 @@ public class FileUtil {
     /**
      * 循环sheet
      *
-     * @param list
-     * @param sheet
-     * @param startLine
-     * @param sdf
+     * @param list      把循环的结果装入这个list
+     * @param sheet     循环的sheet
+     * @param startLine 起始行
+     * @param sdf       把日期转换为字符串所用的格式
      */
-    private static void loopExcelSheet(List<Map<Integer, String>> list, Sheet sheet, int startLine, SimpleDateFormat sdf) {
+    private static void loopExcelSheet(List<Object[]> list, Sheet sheet, int startLine, SimpleDateFormat sdf) {
         int line = 1; //当前行
 
         for (Iterator<Row> rowIt = sheet.iterator(); rowIt.hasNext(); ) {
@@ -218,35 +230,52 @@ public class FileUtil {
                 continue;
             }
             int n = 0;
-            Map<Integer, String> map = new HashMap<>();
+            Object[] obj = new Object[r.getLastCellNum()];
 
             for (Iterator<Cell> cellIt = r.iterator(); cellIt.hasNext(); ) {
                 Cell cell = cellIt.next();
                 String cellContent = "";
 
-                //如果是数字类型
-                if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
-                    //如果是日期类型
-                    if (HSSFDateUtil.isCellDateFormatted(cell)) {
-                        cellContent = sdf.format(cell.getDateCellValue());
-                    } else {
-                        cellContent = String
-                                .valueOf(cell.getNumericCellValue());
+                if (cell != null) {
+                    switch (cell.getCellType()) {
+                        // 数字
+                        case HSSFCell.CELL_TYPE_NUMERIC:
+                            //如果是日期
+                            if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                                cellContent = sdf.format(cell.getDateCellValue());
+                            } else {
+                                cellContent = String
+                                        .valueOf(cell.getNumericCellValue());
+                            }
+                            break;
+                        // 字符串
+                        case HSSFCell.CELL_TYPE_STRING:
+                            cellContent = cell.getStringCellValue();
+                            break;
+                        // boolean
+                        case HSSFCell.CELL_TYPE_BOOLEAN:
+                            cellContent = cell.getBooleanCellValue() + "";
+                            break;
+                        // 公式
+                        case HSSFCell.CELL_TYPE_FORMULA:
+                            cellContent = cell.getCellFormula();
+                            break;
+                        // 空值
+                        case HSSFCell.CELL_TYPE_BLANK:
+                            break;
+                        // 错误
+                        case HSSFCell.CELL_TYPE_ERROR:
+                            break;
+                        default:
+                            break;
                     }
                 }
 
-                //如果是字符串类型
-                if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
-                    cellContent = cell.getStringCellValue();
-                }
-
-
-                map.put(n, cellContent);
-
+                obj[n] = cellContent;
                 n++;
             }
 
-            list.add(map);
+            list.add(obj);
 
             line++;
         }
@@ -256,28 +285,38 @@ public class FileUtil {
     /**
      * 向文件中写入内容
      *
-     * @param text
-     * @param path
+     * @param text 写入的内容
+     * @param path 文件全路径
      */
-    public static void writeToFile(String text, String path) {
+    public static void writeToFile(String text, String path) throws Exception {
         File file = new File(path);
-        try {
-            FileWriter fw = new FileWriter(path);
+        if (!file.exists()) {
+            log.error("文件不存在!!!");
+            throw new FileNotFoundException();
+        }
+        try (FileWriter fw = new FileWriter(path)) {
             fw.write(text);
             fw.flush();
-            fw.close();
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("文件写入错误！");
+            log.error("文件写入错误！");
         }
     }
 
-    public static void writeToFile(String text, File file) {
-        try {
-            FileWriter fw = new FileWriter(file);
+    /**
+     * 向文件中写入内容
+     *
+     * @param text 写入的内容
+     * @param file 文件全路径
+     */
+    public static void writeToFile(String text, File file) throws Exception {
+        if (!file.exists()) {
+            log.error("文件不存在!!!");
+            throw new FileNotFoundException();
+        }
+        try (FileWriter fw = new FileWriter(file)) {
             fw.write(text);
             fw.flush();
-            fw.close();
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("文件写入错误！");
@@ -287,8 +326,9 @@ public class FileUtil {
     /**
      * 得到路径path下的所有文件
      *
-     * @param path
-     * @return
+     * @param path     路径
+     * @param fileList 把符合条件的文件装入这个list
+     * @return 文件列表
      */
     public static List<File> getAllFiles(File path, List<File> fileList) throws Exception {
         if (path.isFile()) {
@@ -305,10 +345,10 @@ public class FileUtil {
     /**
      * 得到path路径下的所有文件夹
      *
-     * @param path
-     * @param fileList
-     * @return
-     * @throws Exception
+     * @param path     路径
+     * @param fileList 把符合条件的文件夹装入这个list
+     * @return 文件夹列表
+     * @throws Exception 抛出产生的所有异常信息
      */
     public static List<File> getAllDirectories(File path, List<File> fileList) throws Exception {
         File[] files = path.listFiles();
@@ -324,8 +364,8 @@ public class FileUtil {
     /**
      * 得到纯文本
      *
-     * @param text
-     * @return
+     * @param text 传入的字符串
+     * @return 去除掉特殊符号之后的字符串(纯文本)
      */
     public static String getPureText(String text) {
         return text.replaceAll("<([^>]*)>", "").replaceAll("\\s*|\t|\r|\n", "").replaceAll("&nbsp;", "");
@@ -334,7 +374,18 @@ public class FileUtil {
     /**
      * 删除文件
      *
-     * @param list
+     * @param file 文件全路径
+     */
+    public static void deleteFile(File file) {
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    /**
+     * 删除文件, 把list中的文件全部删除
+     *
+     * @param list 文件list
      */
     public static void deleteFile(List<File> list) {
         if (list != null) {
@@ -350,8 +401,8 @@ public class FileUtil {
     /**
      * 删除文件夹
      *
-     * @param path
-     * @throws Exception
+     * @param path 文件夹路径
+     * @throws Exception 抛出产生的所有异常信息
      */
     public static void deleteDirectory(File path) {
         if (path.isFile()) {
@@ -370,7 +421,7 @@ public class FileUtil {
     /**
      * 清空文件夹
      *
-     * @param path
+     * @param path 文件夹路径
      */
     public static void clearDirectory(File path) {
         if (path.isFile()) {
@@ -389,11 +440,80 @@ public class FileUtil {
      * 根据文件名判断文件是否存在
      *
      * @param fileName 文件全名
-     * @return
+     * @return 存在:true, 不存在:false
      */
     public static boolean exists(String fileName) {
         File file = new File(fileName);
         return file.exists();
     }
+
+    /**
+     * 复制单个文件
+     *
+     * @param srcFileName  待复制的文件名
+     * @param destFileName 目标文件名
+     * @param overlay      如果目标文件存在，是否覆盖, 覆盖:true, 不覆盖:false
+     * @return 如果复制成功，则返回true，否则返回false
+     */
+    public static boolean copyFile(String srcFileName, String destFileName,
+                                   boolean overlay) {
+        // 判断原文件是否存在
+        File srcFile = new File(srcFileName);
+        if (!srcFile.exists()) {
+            log.error("复制文件失败：原文件" + srcFileName + "不存在！");
+            return false;
+        } else if (!srcFile.isFile()) {
+            log.error("复制文件失败：" + srcFileName + "不是一个文件！");
+            return false;
+        }
+        // 判断目标文件是否存在
+        File destFile = new File(destFileName);
+        if (destFile.exists()) {
+            // 如果目标文件存在，而且复制时允许覆盖。
+            if (overlay) {
+                // 删除已存在的目标文件，无论目标文件是目录还是单个文件
+                log.warn("目标文件已存在，准备删除它！");
+                try {
+                    deleteFile(destFile);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error("复制文件失败：删除目标文件" + destFileName + "失败！");
+                    return false;
+                }
+            } else {
+                log.error("复制文件失败：目标文件" + destFileName + "已存在！");
+                return false;
+            }
+        } else {
+            if (!destFile.getParentFile().exists()) {
+                // 如果目标文件所在的目录不存在，则创建目录
+                log.warn("目标文件所在的目录不存在，准备创建它！");
+                log.debug(destFile.getParentFile());
+                if (!destFile.getParentFile().mkdirs()) {
+                    log.error("复制文件失败：创建目标文件所在的目录失败！");
+                    return false;
+                }
+            }
+        }
+        // 准备复制文件
+        int byteread = 0;// 读取的位数
+        try (InputStream in = new FileInputStream(srcFile);
+             OutputStream out = new FileOutputStream(destFile)) {
+            // 打开连接到目标文件的输出流
+            byte[] buffer = new byte[1024];
+            // 一次读取1024个字节，当byteread为-1时表示文件已经读完
+            while ((byteread = in.read(buffer)) != -1) {
+                // 将读取的字节写入输出流
+                out.write(buffer, 0, byteread);
+            }
+            log.debug("复制单个文件" + srcFileName + "至" + destFileName
+                    + "成功！");
+            return true;
+        } catch (Exception e) {
+            log.error("复制文件失败：" + e.getMessage());
+            return false;
+        }
+    }
+
 }
 
