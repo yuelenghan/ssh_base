@@ -22,4 +22,17 @@
 
     <!--放过/scripts下的静态文件-->
     <mvc:resources mapping="/scripts/**" location="/scripts/" />
+
+    <!-- 日志拦截器 -->
+    <mvc:interceptors>
+        <bean class="com.ghtn.interceptor.LogInterceptor"/>
+    </mvc:interceptors>
+
+    <!-- 文件上传 -->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="utf-8"/>
+        <property name="maxUploadSize" value="10485760000"/>
+        <property name="maxInMemorySize" value="40960"/>
+    </bean>
 </beans>

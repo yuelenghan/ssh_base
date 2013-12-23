@@ -5,8 +5,10 @@ import com.ghtn.service.UserManager;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,7 +19,7 @@ import javax.annotation.Resource;
  */
 @Controller
 @RequestMapping("/user/")
-public class UserController {
+public class UserController extends BaseController {
 
     private static Logger logger = Logger.getLogger(UserController.class);
     private UserManager userManager;
@@ -28,14 +30,9 @@ public class UserController {
     }
 
     @RequestMapping("addUser")
-    public String addUser(User user) {
-        logger.debug("进入UserController--addUser");
-        try {
-            userManager.save(user);
-        } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            return "error";
-        }
-        return "success";
+    @ResponseBody
+    public Map<String, Object> addUser(User user) {
+        userManager.save(user);
+        return operationSuccess();
     }
 }

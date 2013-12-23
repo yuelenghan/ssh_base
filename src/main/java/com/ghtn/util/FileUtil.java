@@ -1,5 +1,7 @@
 package com.ghtn.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -25,6 +27,8 @@ import java.util.*;
  * 文件操作相关
  */
 public class FileUtil {
+
+    private static Log log = LogFactory.getLog(FileUtil.class);
 
     public static String getFileExtension(String fileName) {
         if (!StringUtil.isNullStr(fileName)) {
@@ -334,6 +338,17 @@ public class FileUtil {
     /**
      * 删除文件
      *
+     * @param file 文件全路径
+     */
+    public static void deleteFile(File file) {
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    /**
+     * 删除文件
+     *
      * @param list
      */
     public static void deleteFile(List<File> list) {
@@ -394,6 +409,74 @@ public class FileUtil {
     public static boolean exists(String fileName) {
         File file = new File(fileName);
         return file.exists();
+    }
+
+    /**
+     * 复制单个文件
+     *
+     * @param srcFileName  待复制的文件名
+     * @param destFileName 目标文件名
+     * @param overlay      如果目标文件存在，是否覆盖, 覆盖:true, 不覆盖:false
+     * @return 如果复制成功，则返回true，否则返回false
+     */
+    public static boolean copyFile(String srcFileName, String destFileName,
+                                   boolean overlay) {
+        // 判断原文件是否存在
+        File srcFile = new File(srcFileName);
+        if (!srcFile.exists()) {
+            log.error("复制文件失败：原文件" + srcFileName + "不存在！");
+            return false;
+        } else if (!srcFile.isFile()) {
+            log.error("复制文件失败：" + srcFileName + "不是一个文件！");
+            return false;
+        }
+        // 判断目标文件是否存在
+        File destFile = new File(destFileName);
+        if (destFile.exists()) {
+            // 如果目标文件存在，而且复制时允许覆盖。
+            if (overlay) {
+                // 删除已存在的目标文件，无论目标文件是目录还是单个文件
+                log.warn("目标文件已存在，准备删除它！");
+                try {
+                    deleteFile(destFile);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error("复制文件失败：删除目标文件" + destFileName + "失败！");
+                    return false;
+                }
+            } else {
+                log.error("复制文件失败：目标文件" + destFileName + "已存在！");
+                return false;
+            }
+        } else {
+            if (!destFile.getParentFile().exists()) {
+                // 如果目标文件所在的目录不存在，则创建目录
+                log.warn("目标文件所在的目录不存在，准备创建它！");
+                log.debug(destFile.getParentFile());
+                if (!destFile.getParentFile().mkdirs()) {
+                    log.error("复制文件失败：创建目标文件所在的目录失败！");
+                    return false;
+                }
+            }
+        }
+        // 准备复制文件
+        int byteread = 0;// 读取的位数
+        try (InputStream in = new FileInputStream(srcFile);
+             OutputStream out = new FileOutputStream(destFile)) {
+            // 打开连接到目标文件的输出流
+            byte[] buffer = new byte[1024];
+            // 一次读取1024个字节，当byteread为-1时表示文件已经读完
+            while ((byteread = in.read(buffer)) != -1) {
+                // 将读取的字节写入输出流
+                out.write(buffer, 0, byteread);
+            }
+            log.debug("复制单个文件" + srcFileName + "至" + destFileName
+                    + "成功！");
+            return true;
+        } catch (Exception e) {
+            log.error("复制文件失败：" + e.getMessage());
+            return false;
+        }
     }
 }
 
