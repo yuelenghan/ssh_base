@@ -2,11 +2,14 @@ package com.ghtn.controller;
 
 import com.ghtn.model.User;
 import com.ghtn.service.UserManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,10 +19,10 @@ import javax.annotation.Resource;
  * To change this template use File | Settings | File Templates.
  */
 @Controller
-@RequestMapping("/user/")
-public class UserController {
+@RequestMapping("/user")
+public class UserController extends BaseController {
 
-    private static Logger logger = Logger.getLogger(UserController.class);
+    private static Log log = LogFactory.getLog(UserController.class);
     private UserManager userManager;
 
     @Resource
@@ -27,15 +30,10 @@ public class UserController {
         this.userManager = userManager;
     }
 
-    @RequestMapping("addUser")
-    public String addUser(User user) {
-        logger.debug("进入UserController--addUser");
-        try {
-            userManager.save(user);
-        } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            return "error";
-        }
-        return "success";
+    @RequestMapping("/addUser")
+    @ResponseBody
+    public Map<String, Object> addUser(User user) {
+        userManager.save(user);
+        return operationSuccess();
     }
 }

@@ -12,14 +12,28 @@
       http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
 
     <!-- 启动注解驱动的Spring MVC功能，注册请求url和注解POJO类方法的映射-->
-    <mvc:annotation-driven />
+    <mvc:annotation-driven/>
 
     <!-- 自动扫描controller -->
     <context:component-scan base-package="com.ghtn.controller"/>
 
     <!-- 对模型视图名称的解析，在WEB-INF/page目录下找对应的jsp文件 -->
-    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:prefix="/WEB-INF/page/" p:suffix=".jsp" />
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:prefix="/WEB-INF/page/"
+          p:suffix=".jsp"/>
 
     <!--放过/scripts下的静态文件-->
-    <mvc:resources mapping="/scripts/**" location="/scripts/" />
+    <mvc:resources mapping="/scripts/**" location="/scripts/"/>
+
+    <!-- 日志拦截器 -->
+    <mvc:interceptors>
+        <bean class="com.ghtn.interceptor.LogInterceptor"/>
+    </mvc:interceptors>
+
+    <!-- 文件上传 -->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="utf-8"/>
+        <property name="maxUploadSize" value="10485760000"/>
+        <property name="maxInMemorySize" value="40960"/>
+    </bean>
 </beans>
