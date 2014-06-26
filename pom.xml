@@ -315,7 +315,7 @@
                     </webApp>
                     <connectors>
                         <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                            <port>8082</port>
+                            <port>8080</port>
                         </connector>
                     </connectors>
                 </configuration>
@@ -393,6 +393,8 @@
         <timeToIdleSeconds>3600</timeToIdleSeconds>
         <timeToLiveSeconds>100000</timeToLiveSeconds>
         <diskPersistent>false</diskPersistent>
+
+        <upload.temp.path>../webapps/${project.name}/temp</upload.temp.path>
 
         <encoding>utf-8</encoding>
     </properties>

@@ -12,7 +12,17 @@ import java.util.Properties;
  * To change this template use File | Settings | File Templates.
  */
 public class ConstantUtil {
+    /**
+     * 索引根目录
+     */
     public static String INDEX_BASE;
+
+    /**
+     * 上传文件的临时目录
+     */
+    public static String UPLOAD_TEMP_PATH;
+
+    public static final String SUCCESS = "success";
 
     static {
         InputStream in = ConstantUtil.class.getResourceAsStream("/constant.properties");
@@ -20,8 +30,15 @@ public class ConstantUtil {
         try {
             prop.load(in);
             INDEX_BASE = prop.getProperty("hibernate.search.default.indexBase").trim();
+            UPLOAD_TEMP_PATH = prop.getProperty("upload.temp.path").trim();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
     }
 }

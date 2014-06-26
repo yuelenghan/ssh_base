@@ -18,9 +18,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * created by lh
@@ -30,6 +33,12 @@ public class FileUtil {
 
     private static Log log = LogFactory.getLog(FileUtil.class);
 
+    /**
+     * 得到文件的扩展名
+     *
+     * @param fileName 文件全名
+     * @return 文件扩展名
+     */
     public static String getFileExtension(String fileName) {
         if (!StringUtil.isNullStr(fileName)) {
             fileName = fileName.trim();
@@ -119,6 +128,27 @@ public class FileUtil {
      * 读取excel文件的内容
      *
      * @param fileName 文件全名
+     * @return
+     * @throws Exception
+     */
+    public static String ExcelReader(String fileName) throws Exception {
+        String extension = getFileExtension(fileName);
+        if (!StringUtil.isNullStr(extension)) {
+            if (extension.trim().equals("xlsx")) {
+                return ExcelReader(fileName, "2007");
+            } else if (extension.trim().equals("xls")) {
+                return ExcelReader(fileName, "2003");
+            } else {
+                throw new Exception("文件类型不对, 必须为excel类型！");
+            }
+        }
+        return "";
+    }
+
+    /**
+     * 读取excel文件的内容
+     *
+     * @param fileName 文件全名
      * @param fileType 文件类型，2003或2007
      * @return
      * @throws Exception
@@ -164,15 +194,49 @@ public class FileUtil {
     /**
      * 读取excel文件的内容，把返回的内容用list封装起来
      *
-     * @param fileName  文件全名
-     * @param fileType 文件类型，2003或2007
-     * @param startLine 起始行,从1开始
-     * @return list封装之后的内容
+     * @param fileName 文件全名
+     * @return 一行为list中的一个元素
      * @throws Exception
      */
-    public static List<Map<Integer, String>> ExcelReader(String fileName, String fileType, int startLine) throws Exception {
+    public static List<String[]> ExcelReaderForList(String fileName) throws Exception {
+        return ExcelReaderForList(fileName, 1);
+    }
+
+    /**
+     * 读取excel文件的内容，把返回的内容用list封装起来
+     *
+     * @param fileName  文件全名
+     * @param startLine 起始行,从1开始
+     * @return 一行为list中的一个元素
+     * @throws Exception
+     */
+    public static List<String[]> ExcelReaderForList(String fileName, int startLine) throws Exception {
+        String extension = getFileExtension(fileName);
+        if (!StringUtil.isNullStr(extension)) {
+            if (extension.trim().equals("xlsx")) {
+                return ExcelReaderForList(fileName, "2007", 1);
+            } else if (extension.trim().equals("xls")) {
+                return ExcelReaderForList(fileName, "2003", 1);
+            } else {
+                throw new Exception("文件类型不对, 必须为excel类型！");
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 读取excel文件的内容，把返回的内容用list封装起来
+     *
+     * @param fileName  文件全名
+     * @param fileType  文件类型，2003或2007
+     * @param startLine 起始行,从1开始
+     * @return 一行为list中的一个元素
+     * @throws Exception
+     */
+    public static List<String[]> ExcelReaderForList(String fileName, String fileType, int startLine) throws Exception {
         if (exists(fileName) && !StringUtil.isNullStr(fileType)) {
-            List<Map<Integer, String>> list = new ArrayList<>();
+            List<String[]> list = new ArrayList<>();
 
             FileInputStream fis = new FileInputStream(fileName);
             Workbook wb;
@@ -212,7 +276,7 @@ public class FileUtil {
      * @param startLine
      * @param sdf
      */
-    private static void loopExcelSheet(List<Map<Integer, String>> list, Sheet sheet, int startLine, SimpleDateFormat sdf) {
+    private static void loopExcelSheet(List<String[]> list, Sheet sheet, int startLine, SimpleDateFormat sdf) {
         int line = 1; //当前行
 
         for (Iterator<Row> rowIt = sheet.iterator(); rowIt.hasNext(); ) {
@@ -222,35 +286,54 @@ public class FileUtil {
                 continue;
             }
             int n = 0;
-            Map<Integer, String> map = new HashMap<>();
+            String[] strArray = new String[r.getLastCellNum()];
 
             for (Iterator<Cell> cellIt = r.iterator(); cellIt.hasNext(); ) {
                 Cell cell = cellIt.next();
                 String cellContent = "";
 
-                //如果是数字类型
-                if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
-                    //如果是日期类型
-                    if (HSSFDateUtil.isCellDateFormatted(cell)) {
-                        cellContent = sdf.format(cell.getDateCellValue());
-                    } else {
-                        cellContent = String
-                                .valueOf(cell.getNumericCellValue());
+                if (cell != null) {
+                    switch (cell.getCellType()) {
+                        // 数字
+                        case HSSFCell.CELL_TYPE_NUMERIC:
+                            //如果是日期
+                            if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                                cellContent = sdf.format(cell.getDateCellValue());
+                            } else {
+                                cellContent = String
+                                        .valueOf(cell.getNumericCellValue());
+                            }
+                            break;
+                        // 字符串
+                        case HSSFCell.CELL_TYPE_STRING:
+                            cellContent = cell.getStringCellValue();
+                            break;
+                        // boolean
+                        case HSSFCell.CELL_TYPE_BOOLEAN:
+                            cellContent = cell.getBooleanCellValue() + "";
+                            break;
+                        // 公式
+                        case HSSFCell.CELL_TYPE_FORMULA:
+                            cellContent = cell.getCellFormula();
+                            break;
+                        // 空值
+                        case HSSFCell.CELL_TYPE_BLANK:
+                            break;
+                        // 错误
+                        case HSSFCell.CELL_TYPE_ERROR:
+                            break;
+                        default:
+                            break;
                     }
                 }
 
-                //如果是字符串类型
-                if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
-                    cellContent = cell.getStringCellValue();
-                }
 
-
-                map.put(n, cellContent);
+                strArray[n] = cellContent;
 
                 n++;
             }
 
-            list.add(map);
+            list.add(strArray);
 
             line++;
         }
@@ -476,6 +559,41 @@ public class FileUtil {
         } catch (Exception e) {
             log.error("复制文件失败：" + e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * 下载文件
+     *
+     * @param fileName 文件名
+     * @param response HttpServletResponse对象
+     * @return 下载结果
+     * @throws java.io.UnsupportedEncodingException 不支持的字符集编码异常
+     */
+    public static String downloadFile(String fileName, HttpServletResponse response) throws UnsupportedEncodingException {
+        // log.debug(ConstantUtil.CONTACTS_TEMPLATE_PATH);
+        response.reset();
+        response.setContentType("application/octet-stream; charset=utf-8");
+        response.setHeader("Content-Disposition",
+                "attachment;fileName=" + new String(fileName.getBytes("gb2312"), "iso8859-1"));
+
+        // TODO : 发布到正式服务器需要修改文件路径
+        File file = new File(ConstantUtil.UPLOAD_TEMP_PATH + "/" + fileName);
+
+        try (InputStream is = new FileInputStream(file);
+             OutputStream os = response.getOutputStream()) {
+            byte[] b = new byte[1024];
+            int length;
+            while ((length = is.read(b)) > 0) {
+                os.write(b, 0, length);
+            }
+            return ConstantUtil.SUCCESS;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return "文件没有找到！";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "输入输出错误！";
         }
     }
 }
